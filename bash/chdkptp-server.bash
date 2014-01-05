@@ -53,7 +53,7 @@ do_start()
 	cat "$FIFO0" | tee "$LOG0" | "$CHDKPTP" -i &> "$LOG0" &
 	CHDKPTP_PID0=$!
 	sleep 1
-	cat "$FIFO1" | tee "$LOG0" | "$CHDKPTP" -i &> "$LOG1" &
+	cat "$FIFO1" | tee "$LOG1" | "$CHDKPTP" -i &> "$LOG1" &
 	CHDKPTP_PID1=$!
 	
 	echo "CHDKPTP_PID0=$CHDKPTP_PID0" >> "$TMP_CONFIG"
