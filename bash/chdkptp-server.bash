@@ -8,7 +8,7 @@
 CWD="$(dirname $0)"
 CONFIG="$CWD/config.chdkptp-server.bash"
 TMP_CONFIG="$CWD/tmp-config.chdkptp-server.bash"
-FUNCTIONS="$CWD/config.chdkptp-server.bash"
+FUNCTIONS="$CWD/functions.chdkptp-server.bash"
 
 # load in configurations first,
 . "$CONFIG"
@@ -24,58 +24,55 @@ fi
 
 do_start()
 {
-	if [ -r $TMP_CONFIG ]; then
+	if [ -r "$TMP_CONFIG" ]; then
 		echo_stderr "chdkptp-server already running, or stale lock file \"$TMP_CONFIG\"!"
 		echo_stderr "Try calling \"$0 stop\""
 		exit 1
-	else
-		touch "$TMP_CONFIG"
-		TMP_DIR=$(mktemp -d)
-		
-		# create fifos
-		FIFO0=$TMP_DIR'/chdkptp-server-0.fifo'
-		FIFO1=$TMP_DIR'/chdkptp-server-1.fifo'
-		#TODO: array of fifos
-		
-		echo "TMP_DIR=$TMP_DIR" >> "$TMP_CONFIG"
-		echo "FIFO0=$FIFO0" >> "$TMP_CONFIG"
-		echo "FIFO1=$FIFO1" >> "$TMP_CONFIG"
-		mkfifo $FIFO0
-		mkfifo $FIFO1
-		
-		# create output directory
-		OUT_DIR="$OUT_PREFIX/$(date +%Y-%m-%d_%H-%M)"
-		OUT_DIR0="$OUT_DIR/left"
-		OUT_DIR1="$OUT_DIR/right"
-		#TODO: array of directories
-		
-		mkdir -p $OUT_DIR0 $OUT_DIR1
-		echo "OUT_DIR0=$OUT_DIR0" >> "$TMP_CONFIG"
-		echo "OUT_DIR1=$OUT_DIR1" >> "$TMP_CONFIG"
 	fi
 	
-	#TODO: smarter functions so we don't need to keep track of fds
-	open_fd $FIFO0 3
-	open_fd $FIFO1 4
+	touch "$TMP_CONFIG"
+	TMP_DIR="$(mktemp -d)"
+	echo "TMP_DIR=\"$TMP_DIR\"" >> "$TMP_CONFIG"
+	
+	# create fifos
+	FIFO0=$TMP_DIR'/chdkptp-server-0.fifo'
+	FIFO1=$TMP_DIR'/chdkptp-server-1.fifo'
+	open_fifo "$FIFO0" 0
+	open_fifo "$FIFO1" 1
+	
+	# create output directory
+	OUT_DIR="$OUT_PREFIX/$(date +%Y-%m-%d_%H-%M)"
+	OUT_DIR0="$OUT_DIR/left"
+	OUT_DIR1="$OUT_DIR/right"
+	
+	mkdir -p "$OUT_DIR0" "$OUT_DIR1"
+	echo "OUT_DIR0=\"$OUT_DIR0\"" >> "$TMP_CONFIG"
+	echo "OUT_DIR1=\"$OUT_DIR1\"" >> "$TMP_CONFIG"
 	
 	# start chdkptp in interactive mode as a daemon
-	cat $FIFO0 | $CHDKPTP -i &
-	cat $FIFO1 | $CHDKPTP -i &
+	cat "$FIFO0" | tee "$LOG0" | "$CHDKPTP" -i &> "$LOG0" &
+	CHDKPTP_PID0=$!
+	sleep 1
+	cat "$FIFO1" | tee "$LOG0" | "$CHDKPTP" -i &> "$LOG1" &
+	CHDKPTP_PID1=$!
 	
-	write_fd 3 "connect -s=$CAM0"
-	write_fd 4 "connect -s=$CAM1"
+	echo "CHDKPTP_PID0=$CHDKPTP_PID0" >> "$TMP_CONFIG"
+	echo "CHDKPTP_PID1=$CHDKPTP_PID1" >> "$TMP_CONFIG"
 	
-	write_fd 3 "rec"
-	write_fd 4 "rec"
+	write_fifo "$FIFO0" "connect -s=$CAM0"
+	write_fifo "$FIFO1" "connect -s=$CAM1"
+	
+	write_fifo "$FIFO0" 'rec'
+	write_fifo "$FIFO1" 'rec'
 }
 
 do_stop()
 {
-	write_fd 3 "quit"
-	write_fd 4 "quit"
+	write_fifo "$FIFO0" 'quit'
+	write_fifo "$FIFO1" 'quit'
 
-	close_fd 3
-	close_fd 4
+	close_fifo "$FIFO0" "$TAIL_PID0"
+	close_fifo "$FIFO1" "$TAIL_PID1"
 	
 	[ -r "$TMP_CONFIG" ] && rm "$TMP_CONFIG"
 	[ -d "$TMP_DIR" ] && rm -rf "$TMP_DIR"

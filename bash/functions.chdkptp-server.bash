@@ -14,34 +14,34 @@ debug()
 	fi
 }
 
-# http://stackoverflow.com/questions/8410439/how-to-avoid-echo-closing-fifo-named-pipes-funny-behavior-of-unix-fifos/8436387#8436387
-# http://www.gnu.org/software/bash/manual/html_node/Redirections.html
-#TODO: do we _really_ need file descriptors?
-open_fd()
+open_fifo()
 {
-	debug 'entered open_fd'
+	debug 'entered open_fifo'
 	#TODO: check that all parameters are present
-	FIFO=$1
-	FD=$2 #TODO: check in range 3-9
-	eval "exec $FD<>$FIFO"
+	local FIFO="$1"
+	local ID="$2"
+	mkfifo "$FIFO"
+	tail -f /dev/null > "$FIFO" &
+	local TAIL_PID=$!
+	
+	[ -r "$TMP_CONFIG" ] && echo "FIFO$ID=\"$FIFO\"" >> "$TMP_CONFIG"
+	[ -r "$TMP_CONFIG" ] && echo "TAIL_PID$ID=$TAIL_PID" >> "$TMP_CONFIG"
 }
 
 # side-effect: sends EOF to fifo, which chdkptp interprets as 'quit'
-close_fd()
+close_fifo()
 {
-	debug 'entered close_fd'
-	#TODO: check that all parameters are present
-	FD=$1 #TODO: check in range 3-9
-	eval "exec $FD>&-"
+	debug 'entered close_fifo'
+	local FIFO="$1"
+	local PID="$2"
+	kill "$PID"
 }
 
-write_fd()
+write_fifo()
 {
-	debug 'entered write_fd'
+	debug 'entered write_fifo'
 	#TODO: check that all parameters are present
-	FD=$1 #TODO: check in range 3-9
-	MSG=$2
-	eval "echo $MSG >&$FD"
+	local FIFO="$1"
+	local MSG="$2"
+	echo "$MSG" > "$FIFO"
 }
-
-exit 0
