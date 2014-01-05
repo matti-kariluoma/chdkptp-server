@@ -8,7 +8,7 @@ DEBUGGING_MESSAGES=true
 # where do we create directories to hold the output?
 OUT_PREFIX='/home/pi/remoteshoot-output' 
 
-NUM_CAMS=$($CHDKPTP -e'list' | wc -l)
+#NUM_CAMS=$($CHDKPTP -e'list' | wc -l)
 
 #TODO: how do we configure/collect the serials? go back to left/right files on sd cards?
 #TODO: array of serials
