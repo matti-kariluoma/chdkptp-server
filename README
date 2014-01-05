@@ -1,0 +1,8 @@
+chdkptp-server
+==============
+
+Assigns a chdkptp instance to each camera, allows commands to be send to each instance
+
+python/ uses the subprocess module and tcp sockets to control chdptp,
+
+bash/ uses fifos to control chdkptp
