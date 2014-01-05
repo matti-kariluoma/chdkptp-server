@@ -30,6 +30,7 @@ do_start()
 		exit 1
 	fi
 	
+	#debug "Sending 'list' to a throw-away chdkptp instance..."
 	#NUM_CAMS=$($CHDKPTP -e'list' | wc -l)
 	
 	touch "$TMP_CONFIG"
