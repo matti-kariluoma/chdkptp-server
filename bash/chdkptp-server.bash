@@ -30,6 +30,8 @@ do_start()
 		exit 1
 	fi
 	
+	#NUM_CAMS=$($CHDKPTP -e'list' | wc -l)
+	
 	touch "$TMP_CONFIG"
 	TMP_DIR="$(mktemp -d)"
 	echo "TMP_DIR=\"$TMP_DIR\"" >> "$TMP_CONFIG"
