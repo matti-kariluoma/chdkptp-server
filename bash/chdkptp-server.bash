@@ -23,6 +23,8 @@ FIFO1=$TMP_DIR'/chdkptp-server-1.fifo'
 mkfifo $FIFO0
 mkfifo $FIFO1
 
+# http://www.gnu.org/software/bash/manual/html_node/Redirections.html
+#TODO: do we _really_ need file descriptors?
 open_fd()
 {
 	debug 'entered open_fd'
