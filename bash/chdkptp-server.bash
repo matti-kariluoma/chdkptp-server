@@ -35,12 +35,14 @@ do_start()
 	echo "TMP_DIR=\"$TMP_DIR\"" >> "$TMP_CONFIG"
 	
 	# create fifos
+	debug "Creating FIFOs"
 	FIFO0=$TMP_DIR'/chdkptp-server-0.fifo'
 	FIFO1=$TMP_DIR'/chdkptp-server-1.fifo'
 	open_fifo "$FIFO0" 0
 	open_fifo "$FIFO1" 1
 	
 	# create output directory
+	debug "Creating output directories"
 	OUT_DIR="$OUT_PREFIX/$(date +%Y-%m-%d_%H-%M)"
 	OUT_DIR0="$OUT_DIR/left"
 	OUT_DIR1="$OUT_DIR/right"
@@ -50,9 +52,10 @@ do_start()
 	echo "OUT_DIR1=\"$OUT_DIR1\"" >> "$TMP_CONFIG"
 	
 	# start chdkptp in interactive mode as a daemon
+	debug "Starting chdkptp 0"
 	cat "$FIFO0" | tee "$LOG0" | "$CHDKPTP" -i &> "$LOG0" &
 	CHDKPTP_PID0=$!
-	sleep 1
+	debug "Starting chdkptp 1"
 	cat "$FIFO1" | tee "$LOG1" | "$CHDKPTP" -i &> "$LOG1" &
 	CHDKPTP_PID1=$!
 	
@@ -60,7 +63,9 @@ do_start()
 	echo "CHDKPTP_PID1=$CHDKPTP_PID1" >> "$TMP_CONFIG"
 	
 	write_fifo "$FIFO0" "connect -s=$CAM0"
+	sleep 1
 	write_fifo "$FIFO1" "connect -s=$CAM1"
+	sleep 1
 	
 	write_fifo "$FIFO0" 'rec'
 	write_fifo "$FIFO1" 'rec'

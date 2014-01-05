@@ -43,5 +43,6 @@ write_fifo()
 	#TODO: check that all parameters are present
 	local FIFO="$1"
 	local MSG="$2"
+	debug "sending \"$MSG\" to \"$FIFO\""
 	echo "$MSG" > "$FIFO"
 }

@@ -3,7 +3,7 @@
 # Matti Kariluoma Jan 2014 <matti@kariluo.ma>
 
 CHDKPTP='/home/pi/bin/chdkptp'
-DEBUGGING_MESSAGES=false
+DEBUGGING_MESSAGES=true
 
 # where do we create directories to hold the output?
 OUT_PREFIX='/home/pi/remoteshoot-output' 
