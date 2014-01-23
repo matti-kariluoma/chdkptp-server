@@ -29,4 +29,5 @@ if __name__ == "__main__":
 	host = config.get('server', 'host')
 	port = config.get('server', 'port')
 	print((host, port))
+	print('Not yet implemented.')
 	exit(0)
