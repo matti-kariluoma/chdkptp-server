@@ -71,7 +71,21 @@ do_start()
 	sleep 1
 	
 	write_fifo "$FIFO0" 'rec'
+	sleep 3
 	write_fifo "$FIFO1" 'rec'
+	sleep 3
+	
+	write_fifo "$FIFO0" 'luar set_iso_real(50)'
+	write_fifo "$FIFO1" 'luar set_iso_real(50)'
+
+	write_fifo "$FIFO0" 'luar set_tv96(320)'
+	write_fifo "$FIFO1" 'luar set_tv96(320)'
+
+	write_fifo "$FIFO0" 'luar set_focus(300)'
+	write_fifo "$FIFO1" 'luar set_focus(300)'
+	
+	write_fifo "$FIFO0" 'lua loadfile("A/CHDK/SCRIPTS/remote_shoot.lua")()'
+	write_fifo "$FIFO1" 'lua loadfile("A/CHDK/SCRIPTS/remote_shoot.lua")()'
 }
 
 do_stop()

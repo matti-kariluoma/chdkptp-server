@@ -22,17 +22,14 @@ if [ ! -r "$TMP_CONFIG" ]; then
 	exit 1
 fi
 
-#TODO: do these need to be set each and every time?
-write_fifo "$FIFO0" 'lua set_iso_real(50)'
-write_fifo "$FIFO1" 'lua set_iso_real(50)'
+write_fifo "$FIFO0" "getm"
+write_fifo "$FIFO1" "getm"
+sleep 1
 
-write_fifo "$FIFO0" 'lua set_tv96(320)'
-write_fifo "$FIFO1" 'lua set_tv96(320)'
+tail -n 1 "$FIFO0"
+tail -n 1 "$FIFO1"
 
-write_fifo "$FIFO0" 'lua set_focus(300)'
-write_fifo "$FIFO1" 'lua set_focus(300)'
-
-write_fifo "$FIFO0" "remoteshoot $OUT_DIR0/"
-write_fifo "$FIFO1" "remoteshoot $OUT_DIR1/"
+write_fifo "$FIFO0" "putm ping"
+write_fifo "$FIFO1" "putm ping"
 
 exit 0
