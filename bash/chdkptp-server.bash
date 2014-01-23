@@ -56,10 +56,10 @@ do_start()
 	
 	# start chdkptp in interactive mode as a daemon
 	debug "Starting chdkptp 0"
-	cat "$FIFO0" | tee "$LOG0" | "$CHDKPTP" -i &> "$LOG0" &
+	cat "$FIFO0" | tee "$LOG0.in" | "$CHDKPTP" -i &>> "$LOG0.out" &
 	CHDKPTP_PID0=$!
 	debug "Starting chdkptp 1"
-	cat "$FIFO1" | tee "$LOG1" | "$CHDKPTP" -i &> "$LOG1" &
+	cat "$FIFO1" | tee "$LOG1.in" | "$CHDKPTP" -i &>> "$LOG1.out" &
 	CHDKPTP_PID1=$!
 	
 	echo "CHDKPTP_PID0=$CHDKPTP_PID0" >> "$TMP_CONFIG"
@@ -71,7 +71,6 @@ do_start()
 	sleep 1
 	
 	write_fifo "$FIFO0" 'rec'
-	sleep 3
 	write_fifo "$FIFO1" 'rec'
 	sleep 3
 	
@@ -83,6 +82,7 @@ do_start()
 
 	write_fifo "$FIFO0" 'luar set_focus(300)'
 	write_fifo "$FIFO1" 'luar set_focus(300)'
+	sleep 1
 	
 	write_fifo "$FIFO0" 'lua loadfile("A/CHDK/SCRIPTS/remote_shoot.lua")()'
 	write_fifo "$FIFO1" 'lua loadfile("A/CHDK/SCRIPTS/remote_shoot.lua")()'

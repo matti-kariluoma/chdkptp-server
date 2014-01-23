@@ -26,8 +26,8 @@ write_fifo "$FIFO0" "getm"
 write_fifo "$FIFO1" "getm"
 sleep 1
 
-tail -n 1 "$FIFO0"
-tail -n 1 "$FIFO1"
+tail -n 1 "$LOG0.out"
+tail -n 1 "$LOG1.out"
 
 write_fifo "$FIFO0" "putm ping"
 write_fifo "$FIFO1" "putm ping"
